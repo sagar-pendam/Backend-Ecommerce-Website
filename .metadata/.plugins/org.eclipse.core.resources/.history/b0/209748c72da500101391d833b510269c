@@ -1,0 +1,24 @@
+package com.ecommerce.orderservice.rest;
+
+
+//import com.ecommerce.common_modules.events.InventoryEvent;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.ecommerce.events.InventoryEvent;
+
+@RestController
+@RequestMapping("/home")
+public class OrderOperationController {
+
+    @GetMapping("/msg")
+    public String msg() {
+        InventoryEvent inventoryEvent = new InventoryEvent();
+        inventoryEvent.setProductId("1");
+        inventoryEvent.setQuantity(1);
+        return "Hello World2"+ inventoryEvent.toString();
+    }
+
+}

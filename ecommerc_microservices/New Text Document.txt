@@ -1,0 +1,5 @@
+🔐 Step 6 (Later) — Secure it with JWT (Optional but Recommended)
+
+Once your frontend login is complete and Auth Service provides JWTs,
+you’ll modify the endpoint so that users don’t send userId manually.
+Instead, extract it from the JWT claims (I’ll guide you on that when you’re ready).
