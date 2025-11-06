@@ -39,7 +39,18 @@ public class PaymentServiceImple implements PaymentService {
         payment.setTransactionId(transactionId);
         payment.setStatus(status);
 
-        payment = paymentRepository.save(payment);
+        if (paymentRepository.existsByOrderId(orderId)) {
+            Payment existing = paymentRepository.findByOrderId(orderId)
+                    .orElseThrow(() -> new RuntimeException("Payment exists but not found in DB"));
+            return new PaymentResponse(
+                    existing.getOrderId(),
+                    existing.getAmount(),
+                    existing.getStatus()
+            );
+        }
+
+
+       
 
         // Publish Kafka event
         PaymentEvent event = new PaymentEvent(orderId, amount, status);

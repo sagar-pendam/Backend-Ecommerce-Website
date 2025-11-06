@@ -1,49 +1,46 @@
 package com.ecommerce.orderservice.model;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Order implements Serializable {
+public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private Long userId;
-    private String productCode;   //  needed for Inventory check
-    private int quantity;         //  needed for Inventory check
-    private Double amount;
-    private String status;
-    
+    private String status;           // e.g., "PENDING", "COMPLETED", "CANCELLED"
+    private Double totalAmount;
+    private String paymentMethod;
+    private String customerName;
+    private String address;
+    private String phone;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<OrderItem> items = new ArrayList<>();
+
     @PrePersist
-    public void prePersist() {
+    protected void onCreate() {
         createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        updatedAt = createdAt;
     }
 
     @PreUpdate
-    public void preUpdate() {
+    protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
 }

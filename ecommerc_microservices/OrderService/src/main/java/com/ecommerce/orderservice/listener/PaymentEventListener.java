@@ -1,14 +1,15 @@
 package com.ecommerce.orderservice.listener;
 
-
-import com.ecommerce.events.InventoryEvent;
-import com.ecommerce.events.PaymentEvent;
-import com.ecommerce.orderservice.model.Order;
-import com.ecommerce.orderservice.service.IOrderServiceMgmt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+
+import com.ecommerce.events.InventoryEvent;
+import com.ecommerce.events.PaymentEvent;
+import com.ecommerce.orderservice.model.Order;
+import com.ecommerce.orderservice.model.OrderItem;
+import com.ecommerce.orderservice.service.IOrderServiceMgmt;
 
 @Service
 public class PaymentEventListener {
@@ -19,34 +20,31 @@ public class PaymentEventListener {
     @Autowired
     private KafkaTemplate<String, Object> kafkaTemplate;
 
-
     @KafkaListener(topics = "payment-events", groupId = "order-group")
     public void handlePaymentEvents(PaymentEvent event) {
         System.out.println("📩 Received PaymentEvent: " + event);
 
-        // Fetch the order
         Order order = orderService.findOrderById(event.getOrderId());
 
         if ("FAILED".equals(event.getStatus())) {
-            order.setStatus("CANCELLED");   // ✅ plain String
+            order.setStatus("CANCELLED");
             orderService.updateOrder(order);
             System.out.println("❌ Payment failed, order " + order.getId() + " cancelled.");
-        } 
-        else if ("SUCCESS".equals(event.getStatus())) {
-            order.setStatus("PENDING");    // ✅ plain String (ready for inventory)
-            orderService.createOrder(order);
+        } else if ("SUCCESS".equals(event.getStatus())) {
+            order.setStatus("PENDING");
+            orderService.updateOrder(order);
 
-//            System.out.println("✅ Payment successful, moving to inventory reservation.");
-
-            // Publish InventoryEvent
-            InventoryEvent inventoryEvent = new InventoryEvent(
-                order.getId(),
-                order.getProductCode(),
-                order.getQuantity(),
-                "RESERVE"   // ✅ plain String
-            );
-
-            kafkaTemplate.send("inventory-events", inventoryEvent);
+            // Publish InventoryEvent for each product in order
+            for (OrderItem item : order.getItems()) {
+                InventoryEvent inventoryEvent = new InventoryEvent(
+                        order.getId(),
+                        item.getProductCode(),
+                        item.getQuantity(),
+                        "RESERVE"
+                );
+                kafkaTemplate.send("inventory-events", inventoryEvent);
+                System.out.println("📦 InventoryEvent sent for " + item.getProductCode());
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ import com.ecommerce.inventoryservice.model.Inventory;
 import com.ecommerce.inventoryservice.repository.InventoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 
@@ -19,6 +20,7 @@ public class IInventoryMgmtServiceImple implements IInventoryMgmtService {
 		return repository.findByProductCode(productCode).map(inventory -> inventory.getQuantity() >= quantity).orElse(false);
 	}
 	
+	@Transactional
 	public boolean reserveProduct(String productCode, int quantity) {
         Optional<Inventory> inventoryOpt = repository.findByProductCode(productCode);
         if (inventoryOpt.isPresent()) {
