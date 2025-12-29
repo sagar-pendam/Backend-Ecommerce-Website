@@ -24,11 +24,13 @@ public class Payment implements Serializable {
 
 
     private Double amount;
+   
 
     private String status;  // SUCCESS, FAILED, REFUNDED
 
     @Column(unique = true, nullable = false)
-    private String transactionId;  // ✅ helpful for refunds & audits
+    private String transactionId;  //  helpful for refunds & audits
 
-    private LocalDateTime createdAt = LocalDateTime.now(); // ✅ timestamp for tracing
+    private LocalDateTime createdAt = LocalDateTime.now(); //  timestamp for tracing
+    private String paymentMethod;
 }

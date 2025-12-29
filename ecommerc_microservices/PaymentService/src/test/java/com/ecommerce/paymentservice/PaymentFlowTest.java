@@ -26,8 +26,6 @@ public class PaymentFlowTest {
 
         OrderEvent orderEvent = new OrderEvent(
                 1L,
-                "P12345",
-                2,
                 750.0,
                 "PENDING"
         );
@@ -48,8 +46,7 @@ public class PaymentFlowTest {
 
         OrderEvent orderEvent = new OrderEvent(
                 2L,
-                "P54321",
-                1,
+         
                 1500.0,
                 "PENDING"
         );
@@ -71,8 +68,7 @@ public class PaymentFlowTest {
         // First, create a successful payment
         OrderEvent orderEvent = new OrderEvent(
                 3L,
-                "P98765",
-                1,
+               
                 800.0,
                 "PENDING"
         );
@@ -102,7 +98,7 @@ public class PaymentFlowTest {
         System.out.println("\n🟢 TEST 4: Inventory Confirmed → No Refund Should Happen");
 
         // Step 1️⃣: Simulate a new order event
-        OrderEvent orderEvent = new OrderEvent(4L,"P12345",3, 900.0,"ORDER_CREATED");
+        OrderEvent orderEvent = new OrderEvent(4L, 900.0,"ORDER_CREATED");
         kafkaTemplate.send("order-events", orderEvent);
         Thread.sleep(2000); // wait for payment process
 

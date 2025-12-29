@@ -1,14 +1,17 @@
 package com.ecommerce.paymentservice.kafka;
 
-import com.ecommerce.events.OrderEvent;
-import com.ecommerce.events.RefundEvent;
-import com.ecommerce.paymentservice.service.PaymentService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import com.ecommerce.events.RefundEvent;
+import com.ecommerce.paymentservice.service.PaymentService;
 @Service
 public class RefundEventConsumer {
+
+    private static final Logger log = LoggerFactory.getLogger(RefundEventConsumer.class);
 
     @Autowired
     private PaymentService paymentService;
@@ -19,15 +22,15 @@ public class RefundEventConsumer {
             containerFactory = "refundEventKafkaListenerFactory"
     )
     public void handleRefundEvent(RefundEvent event) {
-        System.out.println("💸 Received RefundEvent: " + event);
+        log.info("Received RefundEvent: {}", event);
 
         Long orderId = event.getOrderId();
         Double amount = event.getAmount();
 
-        System.out.println("💰 Processing refund for order: " + orderId);
-        System.out.println("💵 Refund amount: " + amount);
+        log.info("Triggering refund process → OrderID: {}, Amount: {}", orderId, amount);
 
         paymentService.refundPayment(orderId, amount);
-    }
 
+        log.info("Refund processed for Order: {}", orderId);
+    }
 }

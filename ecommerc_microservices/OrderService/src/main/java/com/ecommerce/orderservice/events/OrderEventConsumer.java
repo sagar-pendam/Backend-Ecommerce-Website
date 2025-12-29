@@ -1,5 +1,7 @@
 package com.ecommerce.orderservice.events;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -8,10 +10,14 @@ import org.springframework.stereotype.Service;
 import com.ecommerce.events.InventoryEvent;
 import com.ecommerce.events.RefundEvent;
 import com.ecommerce.orderservice.model.Order;
+import com.ecommerce.orderservice.model.OrderItem;
 import com.ecommerce.orderservice.service.IOrderServiceMgmt;
+
 
 @Service
 public class OrderEventConsumer {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderEventConsumer.class);
 
     @Autowired
     private IOrderServiceMgmt orderService;
@@ -25,29 +31,56 @@ public class OrderEventConsumer {
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void handleInventoryResponse(InventoryEvent event) {
+
+        log.info("Received InventoryEvent: orderId={}, product={}, status={}",
+                event.getOrderId(), event.getProductCode(), event.getStatus());
+
         Order order = orderService.findOrderById(event.getOrderId());
+        if (order == null) {
+            log.error("Order not found for ID {}", event.getOrderId());
+            return;
+        }
 
-        String status = event.getStatus();
+        boolean allResponded = true;
+        boolean anyOutOfStock = false;
 
-        switch (status) {
-            case "INVENTORY_CONFIRMED":
-                order.setStatus("COMPLETED");
-                break;
+        for (OrderItem item : order.getItems()) {
 
-            case "OUT_OF_STOCK":
-                order.setStatus("CANCELLED");
+            if (item.getProductCode().equals(event.getProductCode())) {
+                log.debug("Updating status of product {} to {}", item.getProductCode(), event.getStatus());
+                item.setStatus(event.getStatus());
+            }
 
-                RefundEvent refundEvent = new RefundEvent(order.getId(), order.getTotalAmount());
+            if (item.getStatus() == null || item.getStatus().equalsIgnoreCase("PENDING")) {
+                allResponded = false;
+            }
+
+            if ("OUT_OF_STOCK".equalsIgnoreCase(item.getStatus())) {
+                anyOutOfStock = true;
+            }
+        }
+
+        if (anyOutOfStock) {
+            order.setStatus("CANCELLED");
+            log.warn("Order {} marked CANCELLED (one or more items out of stock)", order.getId());
+        }
+
+        if (allResponded) {
+            if (anyOutOfStock) {
+
+                double refundAmount = order.getTotalAmount();
+                RefundEvent refundEvent = new RefundEvent(order.getId(), refundAmount);
                 kafkaTemplate.send("refund-events", refundEvent);
-                System.out.println("💸 RefundEvent published for order " + order.getId());
-                break;
 
-            default:
-                order.setStatus("PENDING");
-                break;
+                log.info("RefundEvent published: order={}, amount={}", order.getId(), refundAmount);
+
+            } else {
+                order.setStatus("COMPLETED");
+                log.info("Order {} completed successfully", order.getId());
+            }
         }
 
         orderService.updateOrder(order);
-        System.out.println("📦 Order ID " + order.getId() + " status updated to " + order.getStatus());
+        log.info("Order {} updated to status {}", order.getId(), order.getStatus());
     }
 }

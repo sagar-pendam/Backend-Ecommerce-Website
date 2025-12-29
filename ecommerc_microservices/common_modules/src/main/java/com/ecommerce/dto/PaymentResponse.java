@@ -14,4 +14,5 @@ public class PaymentResponse {
     private Long orderId;
     private Double amount;
     private String status;
+    private String clientSecret;
 }

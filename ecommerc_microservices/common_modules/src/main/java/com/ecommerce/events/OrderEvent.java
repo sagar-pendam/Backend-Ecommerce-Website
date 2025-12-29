@@ -1,18 +1,15 @@
-package com.ecommerce.events;
 
+package com.ecommerce.events;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
-@RequiredArgsConstructor
 public class OrderEvent {
     private Long orderId;
-    private String productCode;
-    private Integer quantity;
     private Double amount;
-//    private OrderStatus status;  // enum
     private String status;
 }

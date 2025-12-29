@@ -14,4 +14,5 @@ public class PaymentEvent {
     private Double amount;    // Payment amount
 //    private PaymentStatus status;  // Use enum instead of String
     private String status;
+    private String paymentMethod; // CARD or COD
 }

@@ -1,13 +1,12 @@
 package com.ecommerce.auth.service;
 
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -18,6 +17,7 @@ import io.jsonwebtoken.security.Keys;
 
 @Service
 public class JWTService {
+    private static final Logger logger = LoggerFactory.getLogger(JWTService.class);
 
 	@Value("${jwt.secret}")
 	private String secretkey;
@@ -26,6 +26,7 @@ public class JWTService {
 
     // Generate Access Token (short-lived)
     public String generateAccessToken(String username) {
+    	 logger.info("Generating access token for user: {}", username);
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -36,6 +37,7 @@ public class JWTService {
 
     // Generate Refresh Token (long-lived)
     public String generateRefreshToken(String username) {
+    	 logger.info("Generating refresh token for user: {}", username);
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -49,6 +51,7 @@ public class JWTService {
     }
 
     public String extractUserName(String token) {
+    	 logger.info("Extracting username from token");
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -71,6 +74,7 @@ public class JWTService {
     }
 
     public boolean isTokenExpired(String token) {
+    	  logger.info("Checking if token is expired...");
         return extractExpiration(token).before(new Date());
     }
 

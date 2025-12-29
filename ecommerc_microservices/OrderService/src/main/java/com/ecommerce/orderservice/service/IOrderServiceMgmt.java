@@ -9,6 +9,7 @@ public interface IOrderServiceMgmt {
     List<Order> findAllOrders();
     Order updateOrder(Order order);
     boolean deleteOrder(Long id);
-
+    public Order getOrderById(Long orderId);
     List<Order> findOrdersByUserId(Long userId);
+    public boolean hasPurchased(Long userId, String productCode);
 }
