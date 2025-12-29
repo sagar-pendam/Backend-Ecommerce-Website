@@ -1,0 +1,6 @@
+[33m88aba80[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m HEAD@{0}: reset: moving to origin/master
+[33mf69be19[m HEAD@{1}: commit: Externalize Stripe secret using environment variable
+[33m97ca2cb[m HEAD@{2}: commit: SLF4j and Log4j added
+[33m88aba80[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m HEAD@{3}: commit: Create Order logic updated
+[33ma5fb7c2[m HEAD@{4}: Branch: renamed refs/heads/master to refs/heads/master
+[33ma5fb7c2[m HEAD@{6}: commit (initial): first commit

@@ -14,16 +14,15 @@ public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    // ✅ Reference to the user who owns the cart
+    //  Reference to the user who owns the cart
     @Column(nullable = false)
     private Long userId;
 
-    // ✅ Reference to product in Product Service
+    //  Reference to product in Product Service
     @Column(nullable = false)
     private Long productId;
 
-    // ✅ Product snapshot data (to avoid multiple calls to Product Service)
+    // Product snapshot data (to avoid multiple calls to Product Service)
     private String productName;
     private String productCode;
     private String imageUrl;
